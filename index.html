@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+<title>记仇室友 · 它记得你说过的每一句话</title>
+<meta name="description" content="养一个会记仇的 AI 室友。它有工具、有手册、有小本子：你说过的每句话它都记着，三天不理它，它会翻旧账。">
+<meta name="theme-color" content="#191316">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>🫥</text></svg>">
+</head>
+<body>
+
+<div class="app">
+  <!-- ========== 顶部 HUD ========== -->
+  <header class="hud">
+    <span class="day-tag">DAY <b id="dayNum">1</b></span>
+    <div class="hud-name" id="hudName">——</div>
+    <button class="hud-btn" id="setBtn" aria-label="设置">
+      <span class="dots"><i></i><i></i><i></i></span>
+    </button>
+    <button class="hud-btn" id="bookBtn" aria-label="记忆本">
+      <span class="book-ico"></span>
+      <i id="memCount">0</i>
+    </button>
+  </header>
+
+  <div class="aff">
+    <div class="aff-track"><i id="affFill"></i></div>
+    <span id="affText">亲密度 0</span>
+  </div>
+
+  <!-- ========== 冷战条 ========== -->
+  <div class="coldbar" id="coldBar">
+    <i></i><span id="coldText"></span>
+  </div>
+
+  <!-- ========== 房间 ========== -->
+  <section class="room" id="room">
+    <div class="lamp-glow"></div>
+    <svg id="scene" viewBox="0 0 400 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+    <div class="speech" id="speech"><span></span></div>
+    <div class="memchip" id="memChip"></div>
+  </section>
+
+  <!-- ========== 对话记录 ========== -->
+  <div class="log-wrap">
+    <section class="log" id="log"></section>
+    <p class="log-tip" id="logTip">它刚开始记事。<br>你说得越多，它记得越牢。</p>
+  </div>
+
+  <!-- ========== 输入 ========== -->
+  <form class="composer" id="composer" autocomplete="off">
+    <input id="input" type="text" maxlength="140" placeholder="跟它说点什么…" enterkeyhint="send">
+    <button id="sendBtn" type="submit" aria-label="发送">↑</button>
+  </form>
+</div>
+
+<!-- ========== 领养 ========== -->
+<div class="overlay" id="onboard">
+  <div class="onboard-card">
+    <div class="ob-creature" id="obCreature"></div>
+    <h1>门口有个东西<br>已经站了三天</h1>
+    <p class="ob-sub">它说它记得你。你不太确定该不该信。</p>
+
+    <label class="ob-field">
+      <span>它叫什么</span>
+      <input id="petNameInput" type="text" maxlength="8" placeholder="随便起，反正它会记仇">
+    </label>
+    <label class="ob-field">
+      <span>你叫什么</span>
+      <input id="userNameInput" type="text" maxlength="10" placeholder="它得知道该记谁">
+    </label>
+
+    <button class="ob-btn" id="adoptBtn">开 门</button>
+    <p class="ob-note">它会把你说的话记一辈子。真的。</p>
+    <button class="ob-link" id="haveKeyBtn">我在别处养过它，用钥匙进去</button>
+    <div class="ob-key hidden" id="obKeyBox">
+      <input id="keyInput" type="text" maxlength="12" placeholder="记忆钥匙，比如 48eps7gspz" autocomplete="off">
+      <button id="enterKeyBtn">进 去</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 记忆本 ========== -->
+<div class="sheet" id="bookSheet">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <h2>它的小本本<span class="nick-tag hidden" id="nickTag"></span></h2>
+      <button class="x" data-close>✕</button>
+    </div>
+    <p class="impression" id="impression"></p>
+
+    <div class="tabs">
+      <button data-tab="mem" class="on">记忆</button>
+      <button data-tab="line">关系时间线</button>
+    </div>
+
+    <div class="filters" id="filters"></div>
+    <div class="memlist" id="memList"></div>
+    <div class="timeline hidden" id="timeline"></div>
+
+    <div class="sheet-foot">
+      <button class="btn-primary" id="posterBtn">生成记忆档案卡</button>
+      <button class="btn-ghost wide" id="auditBtn">查一下我许过什么</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 设置 ========== -->
+<div class="sheet" id="setSheet">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <h2>这屋子的规矩</h2>
+      <button class="x" data-close>✕</button>
+    </div>
+    <div class="set-body">
+      <div class="set-item">
+        <b>记忆钥匙</b>
+        <code id="memKey">——</code>
+        <p>在别的设备上打开它、点「我在别处养过它」，填这把钥匙，它就能想起你。弄丢了，它就不认识你了。</p>
+        <button class="btn-ghost" id="copyKeyBtn">复制钥匙</button>
+      </div>
+      <div class="set-item">
+        <b>时间旅行</b>
+        <p>想看看三天不理它会怎样？点这个，直接快进三天（它不知道你作弊）。</p>
+        <button class="btn-ghost" id="skipBtn">快进三天 →</button>
+      </div>
+      <div class="set-item">
+        <b>冷战</b>
+        <p>它现在只会说几个字。这是它生气的样子，不是故障。</p>
+        <button class="btn-ghost" id="coldBtn">结束冷战</button>
+      </div>
+      <div class="set-item">
+        <b>把它接进别的 AI</b>
+        <p>这个室友还带一个 MCP 服务端。Claude Desktop、Cursor、WorkBuddy 这类支持 MCP 的客户端，可以把它当成一个工具直接调用——读的是同一本记忆，用的是同一份人格。</p>
+        <code id="mcpCmd">node mcp-server/server.mjs --key=…</code>
+        <button class="btn-ghost" id="copyMcpBtn">复制命令</button>
+      </div>
+      <div class="set-item">
+        <b>搬走</b>
+        <p>清空这间屋子，它会忘记你。不可撤销。</p>
+        <button class="btn-ghost danger" id="resetBtn">让它忘掉一切</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 记忆档案卡 ========== -->
+<div class="overlay poster-overlay" id="posterModal">
+  <div class="poster-wrap">
+    <button class="x light" data-close>✕</button>
+    <div class="poster-frame"><canvas id="posterCanvas" width="1080" height="1350"></canvas></div>
+    <div class="poster-actions">
+      <button class="btn-primary" id="downloadBtn">保存图片</button>
+      <button class="btn-ghost" data-close>回去</button>
+    </div>
+    <p class="poster-tip">手机上长按图片也能保存</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+<script src="assets/brain.js"></script>
+<script src="assets/room.js"></script>
+<script src="assets/store.js"></script>
+<script src="assets/skills.js"></script>
+<script src="assets/tools.js"></script>
+<script src="assets/agent.js"></script>
+<script src="assets/poster.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

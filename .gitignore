@@ -1,0 +1,19 @@
+# 依赖
+node_modules/
+package-lock.json
+
+# 系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 日志与临时文件
+*.log
+.e2e/
+.playwright/
+tmp/

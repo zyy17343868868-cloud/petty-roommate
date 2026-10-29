@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "petty-roommate": {
+      "command": "node",
+      "args": ["./mcp-server/server.mjs"],
+      "env": {
+        "ROOMMATE_KEY": "把这里换成你的10位记忆钥匙"
+      }
+    }
+  }
+}
